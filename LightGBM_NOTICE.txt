@@ -1,0 +1,15 @@
+LightGBM — Cat classifier ONNX (cat.onnx)
+=========================================
+Fruit Inspector may ship a LightGBM model exported to ONNX (model/apple/cat.onnx).
+
+LightGBM is Copyright (c) Microsoft Corporation and contributors.
+License: MIT License (same terms as ONNX Runtime MIT — see upstream).
+
+Upstream: https://github.com/microsoft/LightGBM
+License text: https://github.com/microsoft/LightGBM/blob/master/LICENSE
+
+The ONNX file contains trained weights for apple good/bad classification;
+weights are part of the olesha-ai evaluation package under Fruit_Inspector_LICENSE.md
+(non-commercial eval unless separate commercial agreement).
+
+Not affiliated with Microsoft.

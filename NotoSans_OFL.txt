@@ -1,0 +1,4 @@
+Noto Sans Regular (ico/NotoSans-Regular.ttf) is Google Noto Fonts,
+licensed under the SIL Open Font License, Version 1.1.
+See: https://scripts.sil.org/OFL
+Source: https://github.com/googlefonts/noto-fonts

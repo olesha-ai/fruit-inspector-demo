@@ -1,0 +1,16 @@
+Fruit Inspector release bundle — shipped components (reference)
+===============================================================
+Product: Fruit_Inspector.exe, fruit_features.dll, optional trig.exe
+Settings: settings.json (ort_provider cpu | openvino | cuda)
+
+Runtime libraries:
+  lib/cpu/         — ONNX Runtime CPU EP
+  lib/openvino/    — ONNX Runtime + OpenVINO EP
+  lib/cuda/        — optional if present in pack
+
+Models:
+  model/apple/det.onnx   — YOLOX detector
+  model/apple/cat.onnx   — LightGBM Cat
+  model/apple/features.json
+
+See THIRD_PARTY.md and individual *LICENSE* / *NOTICE* files in this folder.

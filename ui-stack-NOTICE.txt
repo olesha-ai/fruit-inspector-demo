@@ -1,0 +1,22 @@
+UI stack notices (linked into Fruit_Inspector.exe)
+==================================================
+Redistributed binaries must keep upstream license texts.
+
+1) Dear ImGui — MIT
+   Copyright (c) Omar Cornut et al.
+   https://github.com/ocornut/imgui
+
+2) GLFW — zlib/libpng
+   https://www.glfw.org/
+
+3) nimgl (Nim OpenGL / ImGui bindings) — MIT
+   https://github.com/nimgl/nimgl
+
+4) NiGui (vendored host window) — see upstream NiGui license in vendor tree
+
+5) stb_image — public domain / MIT
+   https://github.com/nothings/stb
+
+Nim language runtime (linked): MIT — https://nim-lang.org
+
+Full MIT/zlib texts are standard; copy from upstream repos if a lawyer asks for verbatim files.

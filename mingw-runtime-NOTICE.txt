@@ -1,0 +1,13 @@
+MinGW-w64 runtime (shipped next to Fruit_Inspector.exe on Windows)
+=================================================================
+Release may include:
+  libgcc_s_seh-1.dll
+  libstdc++-6.dll
+  libwinpthread-1.dll
+
+These are covered by GPL with the GCC Runtime Library Exception
+(or equivalent MinGW-w64 runtime terms), which allows linking into
+proprietary applications without requiring application source disclosure.
+
+If these DLLs are redistributed, keep this notice in licenses/.
+Not a legal opinion.
