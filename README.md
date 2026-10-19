@@ -7,7 +7,7 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 Libraries: **[fruit-inspector-engine](https://github.com/olesha-ai/fruit-inspector-engine)** (same three DLLs + [HOST.md](https://github.com/olesha-ai/fruit-inspector-engine/blob/main/HOST.md) for your own UI).  
 This repo: **runnable Windows demo** (exe shell + DLLs), not the Nim source tree.
 
-**Download (Windows x64, build 0.10.0):** [Releases → 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
+**Download (main, GUI + libraries):** [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/V0.10.0/Fruit_Inspector_DLL.7z) · [All release assets](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/V0.10.0)
 
 ---
 
@@ -19,7 +19,7 @@ This repo: **runnable Windows demo** (exe shell + DLLs), not the Nim source tree
 - Screenshots / GIF (`infer.gif`, `processor.jpg`, `speed.jpg`)
 - **No** Nim product source here — only the eval demo package in **Releases**
 
-**In the Windows demo zip ([Release 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)):**
+**In `Fruit_Inspector_DLL.7z` (use this one — exe + three DLLs + ORT + models):**
 
 - `Fruit_Inspector.exe` — UI, 3×3 grid, conveyor focus/sticky, camera (Windows Media Foundation → **NV12**)
 - `fruit_infer.dll`, `fruit_cat.dll`, `fruit_features.dll` — **all** ORT inference in DLLs; exe is a **shell** (no in-process ORT fallback)
