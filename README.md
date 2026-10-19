@@ -1,4 +1,4 @@
- Fruit Inspector
+# Fruit Inspector
 
 build **0.10.0** · Windows x64 · Nim · ONNX Runtime · conveyor demo (eval)
 
@@ -7,7 +7,8 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 Libraries: **[fruit-inspector-engine](https://github.com/olesha-ai/fruit-inspector-engine)** (same three DLLs + [HOST.md](https://github.com/olesha-ai/fruit-inspector-engine/blob/main/HOST.md) for your own UI).  
 This repo: **runnable Windows demo** (exe shell + DLLs), not the Nim source tree.
 
-**Download (main, GUI + libraries):** [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/V0.10.0/Fruit_Inspector_DLL.7z) · [All release assets](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/V0.10.0)
+**Download (main — GUI + 3 DLLs):** [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)  
+Release page (2 files — ignore `Fruit_Inspector.7z`, take **DLL**): [0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
 
 ---
 
