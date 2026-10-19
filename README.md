@@ -1,10 +1,44 @@
-# Fruit Inspector
+ Fruit Inspector
 
-build **0.10.0** · Windows x64 · Nim · ONNX Runtime (CPU / OpenVINO / CUDA via `settings.json`) · line station
+build **0.10.0** · Windows x64 · Nim · ONNX Runtime · conveyor demo (eval)
 
-Fruit Inspector is **conveyor inspection**: the fruit moves on the belt; quality is graded only in the **control zone**, not anywhere in the frame.
+Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded only in the **control zone** (centre cell **C**), not anywhere in the frame.
 
-EdgeInfer: https://github.com/olesha-ai/edgeinfer-eval
+Libraries: **[fruit-inspector-engine](https://github.com/olesha-ai/fruit-inspector-engine)** (same three DLLs + [HOST.md](https://github.com/olesha-ai/fruit-inspector-engine/blob/main/HOST.md) for your own UI).  
+This repo: **runnable Windows demo** (exe shell + DLLs), not the Nim source tree.
+
+**Download (Windows x64, build 0.10.0):** [Releases → 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
+
+---
+
+## What exists today (honest)
+
+**In this GitHub repo (main branch):**
+
+- This README, [LICENSE.md](LICENSE.md), [licenses/](licenses/)
+- Screenshots / GIF (`infer.gif`, `processor.jpg`, `speed.jpg`)
+- **No** Nim product source here — only the eval demo package in **Releases**
+
+**In the Windows demo zip ([Release 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)):**
+
+- `Fruit_Inspector.exe` — UI, 3×3 grid, conveyor focus/sticky, camera (Windows Media Foundation → **NV12**)
+- `fruit_infer.dll`, `fruit_cat.dll`, `fruit_features.dll` — **all** ORT inference in DLLs; exe is a **shell** (no in-process ORT fallback)
+- `lib/cpu/onnxruntime.dll`
+- `model/apple/` — `det.onnx`, `cat.onnx`, `features.json` (**apple pack only**)
+- `settings.json`, full `licenses/` folder
+
+**Often not in the public demo zip** (unless I explicitly add them):
+
+- `lib/openvino/`, `lib/cuda/` — EP folders for OpenVINO/CUDA; my public drop is usually **CPU only** (`ort_provider`: `cpu`)
+- `trig.exe` — separate LAN helper; may or may not be bundled (see **trig** below)
+- Pan-tilt / neck hardware — **off** in this product build (`neck_com_port` 0)
+
+**Does not exist (yet):**
+
+- Linux / ARM build in this demo repo
+- Sample client project (C#, Lazarus, …) — headers + engine zip only
+- “Full factory line” trig chain (stop belt → grade) — design direction, not finished product
+- Other crops in the zip — only **apple** models unless I add packs later
 
 ---
 
@@ -16,85 +50,55 @@ EdgeInfer: https://github.com/olesha-ai/edgeinfer-eval
 
 ![speed](./speed.jpg)
 
-Test bench: Intel **i5-11400**, 32 GB RAM, **no discrete GPU**, USB camera 1920×1080.  
-ORT **CPU** EP: infer loop on the order of **~100–130 fps** (see `speed.jpg`).  
-Camera preview ~30 fps — camera limit, not infer.
+Test bench: Intel **i5-11400**, 32 GB RAM, **no discrete GPU**, USB camera 1920×1080.
+
+**Speed — honest numbers:**  
+With **dual YOLO** (640 + **256 ROI refine**) and the **full loop** (preprocess + ORT + postprocess), CPU EP gives about **~115 fps** on the console infer loop on my desk — **lower** than with only the main detect path; the second model and pre/post cost time.  
+Live camera preview ~**30 fps** (camera, not infer).  
+`speed.jpg` may not match the current dual-model loop; use `[infer]` from cmd on your PC.
 
 ---
 
 ## Idea
 
-On the line you do not grade an apple “wherever it happens to be in the frame”. You grade it in the **control zone** — a fixed spot on the belt.
-
-The image uses a **3×3 grid**. The **centre cell (C)** is the control zone:
-
-- detect, track, and **stable IDs** on the line (up to two apples for now);
-- **focus** — the apple closest to cell C; after it leaves C — **sticky focus** on the next ID; a new detection does not steal focus;
-- **Cat (LightGBM)** — only while the focus apple’s centre is **inside C**;
-- pipeline: **YOLOX** (640) → **ROI refine** (256) → **44 features** (`fruit_features`) → Cat → GOOD / BAD on screen.
+- **3×3 grid**; **C** = control zone
+- Up to **two** apples on the line; stable IDs; **focus** on nearest to C; **sticky** after leave C
+- **Cat** runs only when focus centre is **inside C**
+- Pipeline: **YOLOX** 640 → ROI **256** → **44 features** → Cat → GOOD / BAD on screen
 
 ---
 
 ## Station behaviour
 
-- no full-frame chase along the belt — we work cell C and an ID queue;
-- while the apple is moving toward C — detect and track only, Cat is not run;
-- in C — feature collection and verdict;
-- left C — sticky on the next ID, repeat.
+- No full-frame chase — C + ID queue
+- Approaching C: detect/track only
+- In C: features + verdict
+- Left C: next sticky ID
 
 ---
 
 ## trig
 
-On the desk, Cat starts as soon as the apple **enters** C. On a live belt that is not the final story: the fruit can still **move**, **roll**, **bounce** — the frame is already in the zone, but the **object is not ready to grade**. On the factory floor the moment is different: **stop, lying still, ready to capture**.
-
-**trig** is groundwork for that. Not aim-by-coordinates, but a **station signal**: object ready — **grade it**. The inspector sends the verdict over the network (`GOOD` / `BAD` and ID); trig shows the result and will become a **line command** over time: stop the section → signal the model → get the grade. The archive already includes trig as a LAN client; the full chain “ready → command → Cat” is the next step.
-
----
-
-## Stack
-
-- **Nim**, **ImGui** (GLFW)
-- **ONNX Runtime** — provider in **`settings.json`**: `cpu`, `openvino`, `cuda`
-- **YOLOX-nano** + **LightGBM** (Cat ONNX)
-- **`fruit_features.dll`** + **`features.json`** next to Cat
-- apple crop pack: `model/apple/det.onnx`, `cat.onnx`, `features.json`
+Small **LAN client** (`tools/trig` in dev; optional `trig.exe` in zip). Shows GOOD/BAD over TCP from the inspector.  
+**What is not done:** PLC/stop-the-belt “ready to grade” — that is the intended factory story, not what the desk demo does today (Cat on **enter C**).
 
 ---
 
-## What’s in the zip
+## Stack (what the running demo actually uses)
 
-- `Fruit_Inspector.exe`
-- `fruit_features.dll`
-- `lib/cpu/`, `lib/openvino/` (and `lib/cuda/` if included)
-- `model/apple/`
-- `settings.json`
-- `trig.exe` — LAN client (see **trig**)
-- `licenses/`
+- Nim + ImGui (GLFW), **Windows** capture → NV12
+- ONNX Runtime **CPU** in the usual public zip
+- `settings.json` can say `openvino` / `cuda` if **you** add the matching `lib/` trees — not promised in the default download
 
 ---
 
-## settings.json
+## Run (after you have the zip)
 
-The file sits next to the exe. Values in the archive may be from my desk — use your own.
-
-**Engine:** `ort_provider`, `ort_intra_threads`, `ort_inter_threads`, `openvino_*` (when using OpenVINO).
-
-**Models and camera:** `crop_pack`, `model`, `cat_model`, `camera_index`, `conf`, `iou`, `infer_main_tensor_size`, `infer_refine_tensor_size`.
-
-**Output and logs:** `ip_addr`, `ip_port`, `memory_diag_enabled`.
-
-Edit the file by hand or use **Settings** → **Apply**.
-
----
-
-## Run
-
-1. Unpack locally.
-2. Keep `lib/`, `model/`, `fruit_features.dll`, and `settings.json` next to `Fruit_Inspector.exe`.
-3. Set `camera_index` and `ort_provider`.
-4. Run from cmd if you want `[infer]` fps lines on stdout.
-5. **START** / **STOP** in the UI; Esc asks before quit.
+1. Unpack locally (not from a network drive).
+2. Same folder: exe, three DLLs, `lib/cpu/`, `model/apple/`, `settings.json`, `licenses/`.
+3. Set `camera_index`, `ort_provider` (`cpu` first).
+4. Cmd: `Fruit_Inspector.exe` if you want `[infer]` fps on stdout.
+5. UI: START / STOP; Esc confirms quit.
 
 ---
 
@@ -102,12 +106,11 @@ Edit the file by hand or use **Settings** → **Apply**.
 
 Testing, teaching, research, feedback — yes.  
 Commercial production under this license — no.  
-Full text: [LICENSE.md](LICENSE.md), [licenses/Fruit_Inspector_LICENSE.md](licenses/Fruit_Inspector_LICENSE.md).  
-Third-party components: [licenses/THIRD_PARTY.md](licenses/THIRD_PARTY.md). Do not remove the `licenses/` folder from the zip.
+[LICENSE.md](LICENSE.md), [licenses/Fruit_Inspector_LICENSE.md](licenses/Fruit_Inspector_LICENSE.md), [licenses/THIRD_PARTY.md](licenses/THIRD_PARTY.md) — keep `licenses/` in the zip.
 
-Commercial contact: olesha-ai.
+Commercial: olesha-ai.
 
-Intel, OpenVINO, Microsoft, Megvii, and other names are trademarks of their respective owners.
+Trademarks belong to their owners.
 
 ---
 
