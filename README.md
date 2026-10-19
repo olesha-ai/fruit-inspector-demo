@@ -9,10 +9,12 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 
 ## Download
 
-| File | Use |
-|------|-----|
+
+| File                                                                                                                            | Use                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Current package (0.10.0):** `Fruit_Inspector.exe` + `fruit_infer.dll` + `fruit_cat.dll` + `fruit_features.dll` + ORT + models. **Download this.** |
-| [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older archive on the same release; **not** the full three-DLL layout. Kept for reference only. |
+| [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z)             | Older archive on the same release; **not** the full three-DLL layout. Kept for reference only.                                                      |
+
 
 Release page: [0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
 
@@ -20,11 +22,15 @@ Unpack with [7-Zip](https://www.7-zip.org/) (or similar). Use a local folder, no
 
 ---
 
+
+
 ## What is on `main` (this repo)
 
 - [README.md](README.md), [LICENSE.md](LICENSE.md), [licenses/](licenses/)
 - Demo media: `infer.gif`, `processor.jpg`, `speed.jpg`
 - Binaries only under **[Releases](https://github.com/olesha-ai/fruit-inspector-demo/releases)** — not committed to `main`
+
+
 
 ## What is inside `Fruit_Inspector_DLL.7z`
 
@@ -36,7 +42,7 @@ Unpack with [7-Zip](https://www.7-zip.org/) (or similar). Use a local folder, no
 
 **Not in the default public archive:**
 
-- `lib/openvino/`, `lib/cuda/` — only if you add them yourself; default build uses **`ort_provider`: `cpu`**
+- `lib/openvino/`, `lib/cuda/` — only if you add them yourself; default build uses `ort_provider`**:** `cpu`
 - `trig.exe` — optional LAN helper (see **trig**); not required to run the demo
 - Pan-tilt / neck — disabled in this product drop (`neck_com_port` 0)
 
@@ -48,6 +54,8 @@ Unpack with [7-Zip](https://www.7-zip.org/) (or similar). Use a local folder, no
 - Other crop packs — apple only unless added later
 
 ---
+
+
 
 ## Pictures
 
@@ -66,6 +74,8 @@ Live camera preview ~**30 fps** (camera limit, not infer).
 
 ---
 
+
+
 ## Idea
 
 - **3×3 grid**; **C** = control zone
@@ -75,6 +85,8 @@ Live camera preview ~**30 fps** (camera limit, not infer).
 
 ---
 
+
+
 ## Station behaviour
 
 - No full-frame chase — work in C with an ID queue
@@ -83,6 +95,8 @@ Live camera preview ~**30 fps** (camera limit, not infer).
 - Left C: sticky handoff to the next ID
 
 ---
+
+
 
 ## Architecture (0.10.0)
 
@@ -98,12 +112,16 @@ Camera (NV12) → Fruit_Inspector.exe (UI + conveyor logic)
 
 ---
 
+
+
 ## trig
 
 Optional **LAN client** for GOOD/BAD over TCP from the inspector.  
 **Not implemented:** full line story (stop section → “ready” → grade). On the desk, Cat runs on **enter C**.
 
 ---
+
+
 
 ## Stack
 
@@ -112,6 +130,8 @@ Optional **LAN client** for GOOD/BAD over TCP from the inspector.
 - `settings.json`: `ort_provider`, models, camera, threads — edit by hand or **Settings → Apply** in the UI
 
 ---
+
+
 
 ## Run
 
@@ -122,6 +142,8 @@ Optional **LAN client** for GOOD/BAD over TCP from the inspector.
 5. In the UI: **START** / **STOP**; Esc confirms quit.
 
 ---
+
+
 
 ## License
 
