@@ -1,22 +1,23 @@
 # Fruit Inspector
 
-**Build 0.10.0** · Windows x64 · Nim · ONNX Runtime (CPU) · conveyor station demo (eval)
+**Build 0.10.0** · Windows x64 · Linux x64 · Nim · ONNX Runtime (CPU) · conveyor station demo (eval)
 
 Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded only in the **control zone** (centre cell **C**), not anywhere in the frame.
 
-- **This repo:** runnable **Windows demo** (ImGui shell + DLLs). No Nim product source on `main`.
+- **This repo:** runnable **Windows and Linux demos** (ImGui shell + inference libraries). No Nim product source on `main`.
 - **Same three inference DLLs for your own UI:** [fruit-inspector-engine](https://github.com/olesha-ai/fruit-inspector-engine) · [HOST.md](https://github.com/olesha-ai/fruit-inspector-engine/blob/main/HOST.md)
 
 ## Download
 
 | File | Use |
 |------|-----|
-| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Current package (0.10.0):** `Fruit_Inspector.exe`, `fruit_infer.dll`, `fruit_cat.dll`, `fruit_features.dll`, ORT, and apple models. **Use this file.** |
-| [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older archive on the same release; not the full three-DLL layout. Reference only. |
+| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Windows (0.10.0):** `Fruit_Inspector.exe`, three DLLs, ORT, apple models. **Use this on Win64.** |
+| **[Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT, models, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
+| [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older Windows archive on the same release; not the full three-DLL layout. Reference only. |
 
 All assets: [Release 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
 
-Unpack with [7-Zip](https://www.7-zip.org/) or similar. Use a local folder, not a network drive.
+Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip the zip. Use a local folder, not a network drive.
 
 ---
 
@@ -40,9 +41,19 @@ Unpack with [7-Zip](https://www.7-zip.org/) or similar. Use a local folder, not 
 - `trig.exe` — optional LAN helper (see **trig**); usually not bundled
 - Pan-tilt / neck — off in this drop (`neck_com_port`: 0)
 
+## Contents of `Fruit_Inspector_linux_x64.zip`
+
+- `Fruit_Inspector` — main app (ext4 / home disk); same binary as `Fruit_Inspector.exe` for FAT USB launchers
+- `fruit_infer.so`, `fruit_cat.so`, `fruit_features.so` — ONNX Runtime inference; the app is a **shell**
+- `lib/linux/` — bundled ONNX Runtime CPU
+- `model/apple/`, `settings.json`, `licenses/`
+- `run.sh`, `install_to_home.sh`, `Fruit_Inspector.desktop` — launch (use **`run.sh`** on USB; see `README.txt` inside the zip)
+
+**CPU:** x86_64 with **SSE4.2 + AVX1** (AVX2 not required for this demo drop). **Not** ARM / Raspberry Pi.
+
 **Not offered here yet:**
 
-- Linux / ARM demo
+- ARM demo
 - Sample host app (C#, Lazarus, …) — see the engine repo
 - Factory PLC chain (stop belt → grade) — direction only, not shipped
 - Other crops — apple only unless added later
@@ -84,13 +95,13 @@ Unpack with [7-Zip](https://www.7-zip.org/) or similar. Use a local folder, not 
 ## Architecture (0.10.0)
 
 ```
-Camera (NV12) → Fruit_Inspector.exe (UI + conveyor)
+Camera (NV12) → Fruit_Inspector (UI + conveyor)
                       ↓
-              fruit_infer.dll (YOLO)
+              fruit_infer (.dll / .so) (YOLO)
                       ↓
               RGB crop on host
                       ↓
-              fruit_features.dll → fruit_cat.dll
+              fruit_features → fruit_cat
 ```
 
 ---
@@ -103,19 +114,27 @@ Optional LAN client for GOOD/BAD over TCP from the inspector. Full line story (s
 
 ## Stack
 
-- Nim, ImGui (GLFW), Windows Media Foundation → NV12
-- ONNX Runtime CPU in `Fruit_Inspector_DLL.7z`
+- Nim, ImGui (GLFW); camera: Windows Media Foundation or Linux V4L2 → NV12
+- ONNX Runtime CPU in the release archives
 - `settings.json`: provider, models, camera, threads — edit by hand or Settings → Apply
 
 ---
 
-## Run
+## Run (Windows)
 
 1. Download [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z) and unpack.
 2. One tree: exe, three DLLs, `lib/cpu/`, `model/apple/`, `settings.json`, `licenses/`.
 3. Set `camera_index` and `ort_provider` (`cpu` first).
 4. From cmd: `Fruit_Inspector.exe` for `[infer]` fps on stdout.
 5. UI: START / STOP; Esc confirms quit.
+
+## Run (Linux)
+
+1. Download [Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_x64.zip) and unzip.
+2. `chmod +x run.sh` (ext4) or always: `bash /path/to/Fruit_Inspector_linux_x64/run.sh`.
+3. Install once: GL/Mesa/X11 libs, `v4l-utils`; user in group `video` for USB camera.
+4. On FAT USB: do **not** run bare `Fruit_Inspector` — use `.desktop`, `Fruit_Inspector.exe`, or `run.sh` (details in zip `README.txt`).
+5. Same UI behaviour as Windows; logs under `logs/`.
 
 ---
 
