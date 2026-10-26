@@ -4,14 +4,14 @@
 
 Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded only in the **control zone** (centre cell **C**), not anywhere in the frame.
 
-- **This repo:** runnable **Windows and Linux demos** (ImGui shell + inference libraries). No Nim product source on `main`.
+- **This repo:** runnable **Windows and Linux demos** (ImGui shell + three inference libraries). No Nim product source on `main`.
 - **Same three inference DLLs for your own UI:** [fruit-inspector-engine](https://github.com/olesha-ai/fruit-inspector-engine) · [HOST.md](https://github.com/olesha-ai/fruit-inspector-engine/blob/main/HOST.md)
 
 ## Download
 
 | File | Use |
 |------|-----|
-| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Windows (0.10.0):** `Fruit_Inspector.exe`, three DLLs, ORT, apple models. **Use this on Win64.** |
+| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Windows (0.10.0):** `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, ORT CPU + MSVC in `lib/cpu/`, apple models. **Use this on Win64.** |
 | **[Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT, models, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
 | [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older Windows archive on the same release; not the full three-DLL layout. Reference only. |
 
@@ -30,16 +30,19 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 ## Contents of `Fruit_Inspector_DLL.7z`
 
 - `Fruit_Inspector.exe` — UI, 3×3 grid, conveyor focus/sticky, Windows camera (NV12)
-- `fruit_infer.dll`, `fruit_cat.dll`, `fruit_features.dll` — all ONNX Runtime inference; the exe is a **shell** (no in-process ORT)
-- `lib/cpu/onnxruntime.dll`
+- **`trig.exe`** — TCP client for **`GOOD <id>` / `BAD <id>`** from the inspector (see **trig**)
+- `fruit_infer.dll`, `fruit_cat.dll`, `fruit_features.dll` — ONNX Runtime inference; the exe is a **shell** (no in-process ORT)
+- `lib/cpu/` — `onnxruntime.dll`, `onnxruntime_providers_shared.dll`, plus **MSVC CRT** (`MSVCP140*`, `VCRUNTIME140*`) so you do not install VC++ Redist separately
+- `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, `libwinpthread-1.dll` — MinGW runtime for the Nim binaries
 - `model/apple/` — `det.onnx`, `cat.onnx`, `features.json` (apple pack only)
-- `settings.json`, `licenses/` (keep the whole folder)
+- `settings.json`, `LICENSE.md`, `licenses/` (keep the whole folder)
 
 **Not in the default archive:**
 
-- `lib/openvino/`, `lib/cuda/` — bring your own if you switch EP; default is `"ort_provider": "cpu"`
-- `trig.exe` — optional LAN helper (see **trig**); usually not bundled
-- Pan-tilt / neck — off in this drop (`neck_com_port`: 0)
+- `lib/openvino/`, `lib/cuda/` — optional; copy from a full dev tree if you switch EP away from CPU
+- Default `"ort_provider": "cpu"` in `settings.json`
+
+**Product mode:** conveyor **station** (cell **C**); pan-tilt / neck tracking is **off** in this build (`NeckTrackingEnabled = false` in the shipped product).
 
 ## Contents of `Fruit_Inspector_linux_x64.zip`
 
@@ -55,7 +58,7 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 
 - ARM demo
 - Sample host app (C#, Lazarus, …) — see the engine repo
-- Factory PLC chain (stop belt → grade) — direction only, not shipped
+- Factory PLC chain (stop belt → ready → grade) — direction only, not shipped
 - Other crops — apple only unless added later
 
 ---
@@ -70,7 +73,7 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 
 **Test bench:** Intel i5-11400, 32 GB RAM, no discrete GPU, USB camera 1920×1080.
 
-**Speed (that bench, CPU EP):** With dual YOLO (640 full frame + 256 ROI refine) and the full loop (preprocess + ORT + postprocess), the console infer loop is about **115 fps** — lower than with only the main detect path; the second model and extra pre/post cost time. Live camera preview is about **30 fps** (camera limit, not infer). `speed.jpg` may show an older setup; trust `[infer]` when you run from cmd.
+**Speed (that bench, CPU EP):** Station path: YOLO on control cell **C** (640) plus ROI refine **256**, then features + Cat. Console `[infer]` fps depends on that dual path and pre/post — often well above live preview. Live camera preview is about **30 fps** (camera limit, not infer). `speed.jpg` may show an older setup; trust `[infer]` when you run from cmd.
 
 ---
 
@@ -79,13 +82,13 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 - 3×3 grid; **C** = control zone
 - Up to two apples on the line; stable IDs; focus on nearest to C; sticky after leave C
 - Cat (LightGBM) only when the focus apple centre is inside C
-- Pipeline: YOLOX 640 → ROI 256 → 44 features → Cat → GOOD / BAD on screen
+- Pipeline: YOLOX on **C** (640) → ROI 256 → 44 features → Cat → **GOOD / BAD** on screen and on Out TCP
 
 ---
 
 ## Station behaviour
 
-- No full-frame chase — work in C with an ID queue
+- No full-frame chase — work in **C** with an ID queue
 - Approaching C: detect and track only
 - In C: features and verdict
 - Left C: sticky handoff to the next ID
@@ -102,13 +105,17 @@ Camera (NV12) → Fruit_Inspector (UI + conveyor)
               RGB crop on host
                       ↓
               fruit_features → fruit_cat
+                      ↓
+              Out TCP  "GOOD|BAD <id>"  →  trig.exe (LAN display / integration)
 ```
 
 ---
 
 ## trig
 
-Optional LAN client for GOOD/BAD over TCP from the inspector. Full line story (stop section → ready → grade) is not implemented; on the desk, Cat runs on enter C.
+**Included in the Windows demo archive.** Desktop client that connects to the inspector over TCP (host/port from `settings.json`: `ip_addr`, `ip_port`). After auth, it shows **`GOOD <apple id>`** and **`BAD <apple id>`** — English only, no coordinates, no turret FIRE.
+
+Use it on a second PC or beside the line to prove the **Out** contract without writing your own host. Full factory story (stop section → ready → grade) is future work; on the desk, Cat runs when the focus apple is in **C**.
 
 ---
 
@@ -116,17 +123,18 @@ Optional LAN client for GOOD/BAD over TCP from the inspector. Full line story (s
 
 - Nim, ImGui (GLFW); camera: Windows Media Foundation or Linux V4L2 → NV12
 - ONNX Runtime CPU in the release archives
-- `settings.json`: provider, models, camera, threads — edit by hand or Settings → Apply
+- `settings.json`: provider, models, camera, threads, Out bind — edit by hand or Settings → Apply
 
 ---
 
 ## Run (Windows)
 
 1. Download [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z) and unpack.
-2. One tree: exe, three DLLs, `lib/cpu/`, `model/apple/`, `settings.json`, `licenses/`.
+2. One tree: `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, MinGW DLLs next to exe, `lib/cpu/`, `model/apple/`, `settings.json`, `licenses/`.
 3. Set `camera_index` and `ort_provider` (`cpu` first).
 4. From cmd: `Fruit_Inspector.exe` for `[infer]` fps on stdout.
 5. UI: START / STOP; Esc confirms quit.
+6. **trig:** start `trig.exe`, connect to the inspector IP/port (same machine: loopback + port from `settings.json`).
 
 ## Run (Linux)
 
