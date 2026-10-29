@@ -12,7 +12,7 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 | File | Use |
 |------|-----|
 | **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Windows (0.10.0):** `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, ORT CPU + MSVC in `lib/cpu/`, apple models. **Use this on Win64.** |
-| **[Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT, models, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
+| **[Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT, models, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
 | [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older Windows archive on the same release; not the full three-DLL layout. Reference only. |
 
 All assets: [Release 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
@@ -44,7 +44,7 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 
 **Product mode:** conveyor **station** (cell **C**); pan-tilt / neck tracking is **off** in this build (`NeckTrackingEnabled = false` in the shipped product).
 
-## Contents of `Fruit_Inspector_linux_x64.zip`
+## Contents of `Fruit_Inspector_linux_app_x64.zip`
 
 - `Fruit_Inspector` — main app (ext4 / home disk); same binary as `Fruit_Inspector.exe` for FAT USB launchers
 - `fruit_infer.so`, `fruit_cat.so`, `fruit_features.so` — ONNX Runtime inference; the app is a **shell**
@@ -138,8 +138,8 @@ Use it on a second PC or beside the line to prove the **Out** contract without w
 
 ## Run (Linux)
 
-1. Download [Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_x64.zip) and unzip.
-2. `chmod +x run.sh` (ext4) or always: `bash /path/to/Fruit_Inspector_linux_x64/run.sh`.
+1. Download [Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip) and unzip.
+2. `chmod +x run.sh` (ext4) or always: `bash /path/to/Fruit_Inspector_linux_app_x64/run.sh`.
 3. Install once: GL/Mesa/X11 libs, `v4l-utils`; user in group `video` for USB camera.
 4. On FAT USB: do **not** run bare `Fruit_Inspector` — use `.desktop`, `Fruit_Inspector.exe`, or `run.sh` (details in zip `README.txt`).
 5. Same UI behaviour as Windows; logs under `logs/`.
