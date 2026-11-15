@@ -1,6 +1,6 @@
 # Fruit Inspector
 
-**Build 0.10.0** · Windows x64 · Linux x64 · Nim · ONNX Runtime (CPU) · conveyor station demo (eval)
+**Build 0.11.0 (Win)** · **0.10.0 (Linux zip)** · Nim · ONNX Runtime (Win: cpu / openvino / directml) · conveyor station demo (eval)
 
 Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded only in the **control zone** (centre cell **C**), not anywhere in the frame.
 
@@ -11,11 +11,11 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 
 | File | Use |
 |------|-----|
-| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z)** | **Windows (0.10.0):** `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, ORT CPU + MSVC in `lib/cpu/`, apple models. **Use this on Win64.** |
-| **[Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT, models, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
-| [Fruit_Inspector.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector.7z) | Older Windows archive on the same release; not the full three-DLL layout. Reference only. |
+| **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_DLL.7z)** | **Windows (0.11.0):** `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, **`lib/cpu/`**, **`lib/openvino/`**, **`lib/directml/`** + MSVC, apple models. Default `ort_provider` = `cpu`. **Use this on Win64.** |
+| **[Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT (CPU), models, `run.sh`. Debian 12/13, Ubuntu 22.04+. (Not re-packed for 0.11.0.) |
+| [Fruit_Inspector_DLL.7z (0.10.0)](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z) | Previous Windows pack: **`lib/cpu/` only**. |
 
-All assets: [Release 0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
+Releases: [0.11.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.11.0) · [0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
 
 Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip the zip. Use a local folder, not a network drive.
 
@@ -37,10 +37,9 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 - `model/apple/` — `det.onnx`, `cat.onnx`, `features.json` (apple pack only)
 - `settings.json`, `LICENSE.md`, `licenses/` (keep the whole folder)
 
-**Not in the default archive:**
+**ORT (0.11.0 Windows):** `lib/cpu/`, `lib/openvino/`, `lib/directml/` in the archive. Switch with `"ort_provider"` in `settings.json` or Settings in the exe (no rebuild). `lib/cuda/` optional if you add it locally.
 
-- `lib/openvino/`, `lib/cuda/` — optional; copy from a full dev tree if you switch EP away from CPU
-- Default `"ort_provider": "cpu"` in `settings.json`
+Default `"ort_provider": "cpu"`. Win CPU EP expects **AVX2** on x64.
 
 **Product mode:** conveyor **station** (cell **C**); pan-tilt / neck tracking is **off** in this build (`NeckTrackingEnabled = false` in the shipped product).
 
@@ -95,7 +94,7 @@ Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip th
 
 ---
 
-## Architecture (0.10.0)
+## Architecture (0.11.0)
 
 ```
 Camera (NV12) → Fruit_Inspector (UI + conveyor)
@@ -122,15 +121,15 @@ Use it on a second PC or beside the line to prove the **Out** contract without w
 ## Stack
 
 - Nim, ImGui (GLFW); camera: Windows Media Foundation or Linux V4L2 → NV12
-- ONNX Runtime CPU in the release archives
+- Windows 0.11.0: ONNX Runtime **cpu / openvino / directml** in the archive; Linux 0.10.0 zip: **CPU** only
 - `settings.json`: provider, models, camera, threads, Out bind — edit by hand or Settings → Apply
 
 ---
 
 ## Run (Windows)
 
-1. Download [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z) and unpack.
-2. One tree: `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, MinGW DLLs next to exe, `lib/cpu/`, `model/apple/`, `settings.json`, `licenses/`.
+1. Download [Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_DLL.7z) and unpack.
+2. One tree: `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, MinGW DLLs next to exe, `lib/cpu/`, `lib/openvino/`, `lib/directml/`, `model/apple/`, `settings.json`, `licenses/`.
 3. Set `camera_index` and `ort_provider` (`cpu` first).
 4. From cmd: `Fruit_Inspector.exe` for `[infer]` fps on stdout.
 5. UI: START / STOP; Esc confirms quit.
