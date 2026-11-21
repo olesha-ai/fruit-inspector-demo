@@ -1,6 +1,6 @@
 # Fruit Inspector
 
-**Build 0.11.0 (Win)** · **0.10.0 (Linux zip)** · Nim · ONNX Runtime (Win: cpu / openvino / directml) · conveyor station demo (eval)
+**Build 0.11.0 (Win + Linux x64)** · Nim · ONNX Runtime (Win: cpu / openvino / directml; Linux: cpu / openvino / cuda) · conveyor station demo (eval)
 
 Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded only in the **control zone** (centre cell **C**), not anywhere in the frame.
 
@@ -12,12 +12,14 @@ Fruit Inspector is **conveyor inspection**: fruit on a belt; quality is graded o
 | File | Use |
 |------|-----|
 | **[Fruit_Inspector_DLL.7z](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_DLL.7z)** | **Windows (0.11.0):** `Fruit_Inspector.exe`, **`trig.exe`**, three fruit DLLs, **`lib/cpu/`**, **`lib/openvino/`**, **`lib/directml/`** + MSVC, apple models. Default `ort_provider` = `cpu`. **Use this on Win64.** |
-| **[Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip)** | **Linux x64 (0.10.0):** portable folder — binary, three `.so`, bundled ORT (CPU), models, `run.sh`. Debian 12/13, Ubuntu 22.04+. (Not re-packed for 0.11.0.) |
+| **[Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_linux_x64.zip)** | **Linux x64 (0.11.0):** app, three `.so`, models, **`lib/cpu/`**, **`lib/openvino/`**, `lib/linux/`, `run.sh`. Debian 12/13, Ubuntu 22.04+. |
+| **[Fruit_Inspector_linux_x64_cuda.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_linux_x64_cuda.zip)** | **Linux CUDA add-on (0.11.0):** unpack into the **same folder** as above → `lib/cuda/`. Needs NVIDIA driver; set `ort_provider` = `cuda`, `ort_lib_dir` = `lib/cuda`. |
+| [Fruit_Inspector_linux_app_x64.zip (0.10.0)](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip) | **Legacy Linux:** single zip, CPU ORT in `lib/linux/` only. |
 | [Fruit_Inspector_DLL.7z (0.10.0)](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_DLL.7z) | Previous Windows pack: **`lib/cpu/` only**. |
 
 Releases: [0.11.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.11.0) · [0.10.0](https://github.com/olesha-ai/fruit-inspector-demo/releases/tag/0.10.0)
 
-Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip the zip. Use a local folder, not a network drive.
+Windows: unpack with [7-Zip](https://www.7-zip.org/) or similar. Linux: unzip **both** 0.11.0 archives into **one** `Fruit_Inspector_linux_x64/` folder if you need CUDA. Use a local folder, not a network drive.
 
 ---
 
@@ -43,15 +45,16 @@ Default `"ort_provider": "cpu"`. Win CPU EP expects **AVX2** on x64.
 
 **Product mode:** conveyor **station** (cell **C**); pan-tilt / neck tracking is **off** in this build (`NeckTrackingEnabled = false` in the shipped product).
 
-## Contents of `Fruit_Inspector_linux_app_x64.zip`
+## Contents of Linux 0.11.0 (`Fruit_Inspector_linux_x64.zip` + optional `*_cuda.zip`)
 
-- `Fruit_Inspector` — main app (ext4 / home disk); same binary as `Fruit_Inspector.exe` for FAT USB launchers
-- `fruit_infer.so`, `fruit_cat.so`, `fruit_features.so` — ONNX Runtime inference; the app is a **shell**
-- `lib/linux/` — bundled ONNX Runtime CPU
+- `Fruit_Inspector` — main app (ext4 / home disk); `Fruit_Inspector.exe` name for FAT USB
+- `fruit_infer.so`, `fruit_cat.so`, `fruit_features.so`
+- `lib/cpu/`, `lib/openvino/`, `lib/linux/` — ONNX Runtime (switch `ort_lib_dir` / provider in `settings.json`)
+- `lib/cuda/` — from the **second zip** only (CUDA EP + bundled GPU libs)
 - `model/apple/`, `settings.json`, `licenses/`
-- `run.sh`, `install_to_home.sh`, `Fruit_Inspector.desktop` — launch (use **`run.sh`** on USB; see `README.txt` inside the zip)
+- `run.sh`, `install_to_home.sh`, `Fruit_Inspector.desktop` — launch (**`bash run.sh`** on USB; see `README.txt` in zip)
 
-**CPU:** x86_64 with **SSE4.2 + AVX1** (AVX2 not required for this demo drop). **Not** ARM / Raspberry Pi.
+**CPU:** x86_64, SSE4.2 + AVX1 (this drop). **CUDA:** discrete NVIDIA (e.g. GTX 1650 Ti class), driver for CUDA 12.
 
 **Not offered here yet:**
 
@@ -121,7 +124,8 @@ Use it on a second PC or beside the line to prove the **Out** contract without w
 ## Stack
 
 - Nim, ImGui (GLFW); camera: Windows Media Foundation or Linux V4L2 → NV12
-- Windows 0.11.0: ONNX Runtime **cpu / openvino / directml** in the archive; Linux 0.10.0 zip: **CPU** only
+- Windows 0.11.0: ONNX Runtime **cpu / openvino / directml** in the archive
+- Linux 0.11.0: **cpu / openvino / cuda** (cuda via second zip)
 - `settings.json`: provider, models, camera, threads, Out bind — edit by hand or Settings → Apply
 
 ---
@@ -135,13 +139,20 @@ Use it on a second PC or beside the line to prove the **Out** contract without w
 5. UI: START / STOP; Esc confirms quit.
 6. **trig:** start `trig.exe`, connect to the inspector IP/port (same machine: loopback + port from `settings.json`).
 
-## Run (Linux)
+## Run (Linux 0.11.0)
+
+1. Download [Fruit_Inspector_linux_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_linux_x64.zip) and unzip to e.g. `~/Fruit_Inspector_linux_x64/`.
+2. For **CUDA:** also download [Fruit_Inspector_linux_x64_cuda.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.11.0/Fruit_Inspector_linux_x64_cuda.zip) and unpack into the **same** folder (creates `lib/cuda/`).
+3. `bash ~/Fruit_Inspector_linux_x64/run.sh`
+4. Install once: GL/Mesa/X11 libs, `v4l-utils`; user in group `video` for USB camera; NVIDIA driver for cuda EP.
+5. EP: `settings.json` — e.g. `ort_provider`: `cpu` | `openvino` | `cuda`; for openvino/cuda set `ort_lib_dir` to `lib/openvino` or `lib/cuda`.
+6. On FAT USB: use `.desktop`, `Fruit_Inspector.exe`, or `run.sh` (see zip `README.txt`).
+7. Logs under `logs/`.
+
+## Run (Linux 0.10.0 legacy)
 
 1. Download [Fruit_Inspector_linux_app_x64.zip](https://github.com/olesha-ai/fruit-inspector-demo/releases/download/0.10.0/Fruit_Inspector_linux_app_x64.zip) and unzip.
-2. `chmod +x run.sh` (ext4) or always: `bash /path/to/Fruit_Inspector_linux_app_x64/run.sh`.
-3. Install once: GL/Mesa/X11 libs, `v4l-utils`; user in group `video` for USB camera.
-4. On FAT USB: do **not** run bare `Fruit_Inspector` — use `.desktop`, `Fruit_Inspector.exe`, or `run.sh` (details in zip `README.txt`).
-5. Same UI behaviour as Windows; logs under `logs/`.
+2. `bash /path/to/Fruit_Inspector_linux_app_x64/run.sh`
 
 ---
 
